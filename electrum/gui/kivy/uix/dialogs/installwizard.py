@@ -1132,6 +1132,9 @@ class InstallWizard(BaseWizard, Widget):
             # do not request PIN for watching-only wallets
             run_next(None, False)
             return
+        if self.app.password is not None:
+            run_next(self.app.password, True)
+            return
         def on_success(old_pw, pw):
             assert old_pw is None
             run_next(pw, True)

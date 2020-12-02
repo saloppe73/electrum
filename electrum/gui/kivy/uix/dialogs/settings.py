@@ -87,7 +87,7 @@ Builder.load_string('''
                 CardSeparator
                 SettingsItem:
                     title: _('Password')
-                    description: _("Change wallet password.")
+                    description: _("Change password.")
                     action: root.change_password
                 CardSeparator
                 SettingsItem:
