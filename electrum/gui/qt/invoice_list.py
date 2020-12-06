@@ -94,11 +94,12 @@ class InvoiceList(MyTreeView):
         status_item.setIcon(read_QIcon(pr_icons.get(status)))
 
     def update(self):
+        print('invoice list update')
         # not calling maybe_defer_update() as it interferes with conditional-visibility
         self.proxy.setDynamicSortFilter(False)  # temp. disable re-sorting after every change
         self.std_model.clear()
         self.update_headers(self.__class__.headers)
-        for idx, item in enumerate(self.parent.wallet.get_invoices()):
+        for idx, item in enumerate(self.parent.wallet.get_unpaid_invoices()):
             if item.is_lightning():
                 key = item.rhash
                 icon_name = 'lightning.png'
