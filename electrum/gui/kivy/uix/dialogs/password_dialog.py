@@ -270,7 +270,7 @@ class PasswordDialog(AbstractPasswordDialog):
 
     def __init__(self, app, **kwargs):
         AbstractPasswordDialog.__init__(self, app, **kwargs)
-        self.hide_wallet_label = bool(app.electrum_config.get('use_single_password'))
+        self.hide_wallet_label = app._use_single_password
 
     def clear_password(self):
         self.ids.textinput_generic_password.text = ''
@@ -324,6 +324,7 @@ class ChangePasswordDialog(PasswordDialog):
 
 
 class OpenWalletDialog(PasswordDialog):
+    """This dialog will let the user choose another wallet file if they don't remember their the password"""
 
     def __init__(self, app, path, callback):
         self.app = app
