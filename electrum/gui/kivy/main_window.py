@@ -643,6 +643,7 @@ class ElectrumWindow(App, Logger):
             storage = WalletStorage(path)
             storage.check_password(self.password)
             self.on_open_wallet(self.password, storage)
+            return
         d = OpenWalletDialog(self, path, self.on_open_wallet)
         d.open()
 
