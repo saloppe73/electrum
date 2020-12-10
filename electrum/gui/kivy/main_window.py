@@ -1210,7 +1210,10 @@ class ElectrumWindow(App, Logger):
         if pin != self.electrum_config.get('pin_code'):
             raise InvalidPassword
 
-    def check_password_for_directory(self, old_password, new_password, update=False):
+    def check_password_for_directory(self, old_password, new_password=None):
+        """Checks password against all wallets and returns (list of matches, list of mismatches).
+        If new_password is not none, it also changes the wallet passwords to new_password.
+        """
         dirname = os.path.dirname(self.electrum_config.get_wallet_path())
         self.logger.info(f'update pw {dirname}')
         failed = []
@@ -1220,11 +1223,11 @@ class ElectrumWindow(App, Logger):
             basename = os.path.basename(path)
             storage = WalletStorage(path)
             if not storage.is_encrypted():
-                # let's encrypt it
-                db = WalletDB(storage.read(), manual_upgrades=False)
-                wallet = Wallet(db, storage, config=self.electrum_config)
                 success.append(basename)
-                if update:
+                if new_password:
+                    # let's encrypt it
+                    db = WalletDB(storage.read(), manual_upgrades=False)
+                    wallet = Wallet(db, storage, config=self.electrum_config)
                     wallet.update_password(None, new_password)
                 continue
             if not storage.is_encrypted_with_user_pw():
@@ -1246,7 +1249,7 @@ class ElectrumWindow(App, Logger):
                 failed.append(basename)
                 continue
             success.append(basename)
-            if update:
+            if new_password:
                 wallet.update_password(old_password, new_password)
         return success, failed
 
@@ -1254,15 +1257,15 @@ class ElectrumWindow(App, Logger):
         def on_success(old_password, new_password):
             # called if old_password works on self.wallet
             self.password = new_password
-            success, failed = self.check_password_for_directory(old_password, new_password)
+            success, failed = self.check_password_for_directory(old_password, None)
             if not failed:
-                self.check_password_for_directory(old_password, new_password, update=True)
+                self.check_password_for_directory(old_password, new_password)
                 self.electrum_config.set_key('use_single_password', True)
-                msg = _(f"Password updated successfully for {len(success)} wallets")
+                msg = _("Password updated successfully for {} wallets").format(len(success))
             else:
                 self.wallet.update_password(old_password, new_password)
                 self.electrum_config.set_key('use_single_password', False)
-                msg = _(f"Password updated for {os.path.basename(self.wallet.path)}")
+                msg = _("Password updated for {}").format(os.path.basename(self.wallet.path))
             self.show_info(msg)
         on_failure = lambda: self.show_error(_("Password not updated"))
         d = ChangePasswordDialog(self, self.wallet, on_success, on_failure)
