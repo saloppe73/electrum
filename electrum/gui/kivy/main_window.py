@@ -726,10 +726,13 @@ class ElectrumWindow(App, Logger):
         if self._channels_dialog:
             Clock.schedule_once(lambda dt: self._channels_dialog.update())
 
+    def is_wallet_creation_disabled(self):
+        return bool(self.electrum_config.get('single_password')) and self.password is None
+
     def wallets_dialog(self):
         from .uix.dialogs.wallets import WalletDialog
         dirname = os.path.dirname(self.electrum_config.get_wallet_path())
-        d = WalletDialog(dirname, self.load_wallet_by_name)
+        d = WalletDialog(dirname, self.load_wallet_by_name, self.is_wallet_creation_disabled())
         d.open()
 
     def popup_dialog(self, name):

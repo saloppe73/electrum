@@ -336,7 +336,7 @@ class OpenWalletDialog(PasswordDialog):
 
     def select_file(self):
         dirname = os.path.dirname(self.app.electrum_config.get_wallet_path())
-        d = WalletDialog(dirname, self.init_storage_from_path)
+        d = WalletDialog(dirname, self.init_storage_from_path, self.app.is_wallet_creation_disabled())
         d.open()
 
     def init_storage_from_path(self, path):
